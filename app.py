@@ -1,3 +1,4 @@
+import json
 from bson import json_util
 import pandas as pd
 from pymongo import MongoClient
@@ -13,6 +14,7 @@ client = MongoClient()
 db = client.my_database
 # Access a specific db_collection (create if not exists)
 db_collection = db.db_collection
+transformed_collection = db.transformed_collection
 # Define the path to clone the repository
 filepath = "/app"
 
@@ -25,8 +27,16 @@ def hello_world():
 
 @app.route('/get_data', methods=['GET'])
 def get_data():
-    data = db_collection.find()
-    return Response(json_util.dumps(data), mimetype='application/json')
+    try:
+        data = transformed_collection.find()
+        dataframe = pd.DataFrame(data)
+        #dataframe['resourceType'] = dataframe['entry'].apply(lambda x: x['resource']['resourceType'])
+        #dataframe['resourceType'] = dataframe['entry'].apply(lambda x: x['resource']['resourceType'])
+        html_table = dataframe.to_html()
+        return html_table
+    except Exception as e:
+        return jsonify({"error message": str(e)})
+
 
 
 async def clone_repo():
@@ -40,9 +50,20 @@ def insert_data():
     asyncio.run(clone_repo())
     for file in os.listdir("/app/data"):
        if file.endswith(".json"):
-           data = json_util.loads(open("/app/data/" + file).read())
-           db_collection.insert_one(data)
+           dataframe = pd.read_json("/app/data/" + file)
+           records = json.loads(dataframe.T.to_json()).values()
+    db_collection.insert_many(records)
+    transform_data()
     return jsonify({"message": "Data inserted successfully"})
+
+def transform_data():
+    data = db_collection.find()
+    dataframe = pd.DataFrame(data)
+    dataframe['resourceType'] = dataframe['entry'].apply(lambda x: x['resource']['resourceType'])
+    dataframe = dataframe[['_id', 'type', 'resourceType', 'entry']]
+    dataframe.drop('entry', axis=1, inplace=True)
+    transformed_collection.insert_many(dataframe.to_dict('records'))
+    return jsonify({"message": "Data transformed successfully"})
 
 with app.app_context():
     insert_data()
