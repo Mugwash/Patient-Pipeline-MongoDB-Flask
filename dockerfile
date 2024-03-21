@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y git
 RUN pip3 install pymongo
 RUN pip3 install flask
 RUN pip install GitPython
+RUN pip install pandas
 COPY app.py /app.py
 # Expose port
 EXPOSE 27017
