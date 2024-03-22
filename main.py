@@ -86,4 +86,5 @@ async def pipeline_setup():
     print("Repo cloned, data inserted and transformed successfully")
 
 if __name__ == '__main__':
+    print("Starting pipeline setup...")
     asyncio.run(pipeline_setup())
