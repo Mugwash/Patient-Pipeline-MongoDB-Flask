@@ -1,72 +1,68 @@
-import json
-from bson import json_util
 import pandas as pd
 from pymongo import MongoClient
-from flask import Flask, jsonify, request,Response
-from git import Repo
-import os
-import asyncio
+from flask import Flask, jsonify
+from main import raw_collection, transformed_collection
 
 app = Flask(__name__)
-# Establish a connection to MongoDB (assuming it's running locally)
-client = MongoClient()
-# Access a specific database (create if not exists)
-db = client.my_database
-# Access a specific db_collection (create if not exists)
-db_collection = db.db_collection
-transformed_collection = db.transformed_collection
-# Define the path to clone the repository
-filepath = "/app"
 
 
 @app.route('/', methods=['GET', 'POST'])
 def hello_world():
-    return 'Hello, World!'
+    """
+    A simple route that returns a message indicating that the app is up and running.
+
+    Returns:
+        str: A message indicating that the app is up and running.
+    """
+    return 'App is up and running!'
 
 
 
-@app.route('/get_data', methods=['GET'])
+@app.route('/get_transformed_data', methods=['GET'])
 def get_data():
+    """
+    Retrieves transformed data from the database and returns it as an HTML table.
+
+    Returns:
+        str: HTML table containing the transformed data.
+    
+    Raises:
+        Exception: If an error occurs while retrieving or processing the data.
+    """
     try:
+        # Retrieve the transformed data from the transformed_collection
         data = transformed_collection.find()
+        # Convert the data to a dataframe
         dataframe = pd.DataFrame(data)
-        #dataframe['resourceType'] = dataframe['entry'].apply(lambda x: x['resource']['resourceType'])
-        #dataframe['resourceType'] = dataframe['entry'].apply(lambda x: x['resource']['resourceType'])
+        # Convert the dataframe to an HTML table
         html_table = dataframe.to_html()
         return html_table
     except Exception as e:
         return jsonify({"error message": str(e)})
+    
+@app.route('/get_raw_data', methods=['GET'])
+def get_raw_data():
+    """
+    Retrieves raw data from the raw_collection and returns it as an HTML table.
 
-
-
-async def clone_repo():
+    Returns:
+        str: HTML table containing the raw data.
+    
+    Raises:
+        Exception: If an error occurs while retrieving or processing the data.
+    """
     try:
-        repo = Repo.clone_from("https://github.com/emisgroup/exa-data-eng-assessment.git", filepath)
-        return jsonify({"message": "Repository cloned successfully"})
+        # Retrieve the raw data from the raw_collection
+        data = raw_collection.find()
+        # Convert the data to a dataframe
+        dataframe = pd.DataFrame(data)
+        # Convert the dataframe to an HTML table
+        html_table = dataframe.to_html()
+        return html_table
     except Exception as e:
         return jsonify({"error message": str(e)})
+    
 
-def insert_data():
-    asyncio.run(clone_repo())
-    for file in os.listdir("/app/data"):
-       if file.endswith(".json"):
-           dataframe = pd.read_json("/app/data/" + file)
-           records = json.loads(dataframe.T.to_json()).values()
-    db_collection.insert_many(records)
-    transform_data()
-    return jsonify({"message": "Data inserted successfully"})
-
-def transform_data():
-    data = db_collection.find()
-    dataframe = pd.DataFrame(data)
-    dataframe['resourceType'] = dataframe['entry'].apply(lambda x: x['resource']['resourceType'])
-    dataframe = dataframe[['_id', 'type', 'resourceType', 'entry']]
-    dataframe.drop('entry', axis=1, inplace=True)
-    transformed_collection.insert_many(dataframe.to_dict('records'))
-    return jsonify({"message": "Data transformed successfully"})
-
-with app.app_context():
-    insert_data()
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(host='0.0.0.0')
+
