@@ -9,12 +9,7 @@ The Patient-Pipeline-MongoDB-Flask project is a containerized data pipeline desi
 - **Data Layer:** 
 -MongoDB(NoSQL DB)
 - **Libraries Used:** 
--Pandas(Data manipulation)
--Flask(web framework)
--Asyncio(asynchronus: ensuring that the pipeline runs in order eg. clone repo data before insert and transform)
--Pymongo(setting up connections, collections and access)
--Git(download repo data)
--Pytest(run basic tests)
+ Pandas(Data manipulation), Flask(web framework), Asyncio(asynchronus: ensuring that the pipeline runs in order eg. clone repo data before insert and transform), Pymongo(setting up connections, collections and access), Git(download repo data), Pytest(run basic tests)
 
 ### Getting Started
 To run this project using Docker, follow these steps:
