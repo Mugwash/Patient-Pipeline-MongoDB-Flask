@@ -58,7 +58,7 @@ Here’s an overview of the files in this project:
   - Contain pytest tests for the functions/methods in the respective Python files.
 
 ## Testing
-To run the tests, simply execute `pytest` in the terminal.
+To run the tests, simply execute `pytest` in the terminal(cd/repolocation).
 
 ## Summary
 Overall, this solution performs well. While there may be a slight delay during initial Git repo download, it ensures a dynamic data source that doesn’t require manual file downloads. The Flask app provides clear routes for viewing raw and transformed data in a tabular format, enhancing readability and usability.
