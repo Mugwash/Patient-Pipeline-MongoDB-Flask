@@ -4,20 +4,26 @@
 ### Overview
 The Patient-Pipeline-MongoDB-Flask project is a containerized data pipeline designed to extract data from a GitHub repository, process it, and present it in both raw and transformed formats. Here’s a breakdown of the key components:
 
-- **Language:** Python
-- **Data Layer:** MongoDB
-- **Libraries Used:** Pandas, Flask, Asyncio, Pymongo, Git, Pytest
+- **Language:** 
+-Python
+- **Data Layer:** 
+-MongoDB(NoSQL DB)
+- **Libraries Used:** 
+-Pandas(Data manipulation)
+-Flask(web framework)
+-Asyncio(asynchronus: ensuring that the pipeline runs in order eg. clone repo data before insert and transform)
+-Pymongo(setting up connections, collections and access)
+-Git(download repo data)
+-Pytest(run basic tests)
 
 ### Getting Started
 To run this project using Docker, follow these steps:
 ```markdown
 ### Build the Docker Image:
-```bash
+
 docker build -t my-mongodb-flaskapp .
-```
 
 ### Run the Docker Container:
-```bash
 docker run -p 5000:5000 -d my-mongodb-flaskapp
 ```
 
@@ -61,5 +67,4 @@ To run the tests, simply execute `pytest` in the terminal.
 
 ## Summary
 Overall, this solution performs well. While there may be a slight delay during initial Git repo download, it ensures a dynamic data source that doesn’t require manual file downloads. The Flask app provides clear routes for viewing raw and transformed data in a tabular format, enhancing readability and usability.
-```
 
